@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data & APIs</title>
+  </head>
+  <body>
+    <h1>Fetch Array of Images</h1>
+
+    <script>
+      // USING ASYNC AND AWAIT
+      const fileNames = [
+        'images/rainbow.png',
+        'images/flower.jpg',
+        'images/lake.jpg',
+        'images/nature.jpg',
+      ];
+
+      fetchImages(fileNames).then(() => {
+        console.log('Got all the images');
+      });
+
+      async function fetchImages(fileNames) {
+        try {
+          for (let fileName of fileNames) {
+            const response = await fetch(fileName);
+            const blob = await response.blob();
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(blob);
+            img.width = '200';
+            document.body.append(img);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    </script>
+  </body>
+</html>
