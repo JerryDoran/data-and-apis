@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <title>CSV Parsing</title>
+  </head>
+  <body>
+    <canvas id="myChart" width="800" height="400"></canvas>
+    <script>
+      createChart();
+
+      async function createChart() {
+        const data = await getData();
+        const ctx = document.getElementById('myChart').getContext('2d');
+
+        const myChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.years,
+            datasets: [
+              {
+                label: 'Global Average Temperature C°',
+                data: data.temps,
+                backgroundColor: ['rgba(255, 99, 132, 0.2)'],
+                borderColor: ['rgba(255, 99, 132, 1)'],
+                borderWidth: 1,
+                fill: false,
+              },
+              {
+                label: 'Northern Hemisphere Average Temperature C°',
+                data: data.northern,
+                backgroundColor: ['rgba(255, 99, 132, 0.2)'],
+                borderColor: ['rgba(99, 200, 132, 1)'],
+                borderWidth: 1,
+                fill: false,
+              },
+              {
+                label: 'Southern Hemisphere Average Temperature C°',
+                data: data.southern,
+                backgroundColor: ['rgba(255, 99, 132, 0.2)'],
+                borderColor: ['rgba(1, 99, 255, 1)'],
+                borderWidth: 1,
+                fill: false,
+              }
+            ],
+          },
+          options: {
+            scales: {
+              yAxes: [
+                {
+                  ticks: {
+                    beginAtZero: true,
+                    min: 13.4,
+                    max: 15.5,
+                    stepSize: 0.1,
+                    callback: function (value, index, values) {
+                      return value + '°';
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        });
+      }
+
+      async function getData() {
+        try {
+          const response = await fetch('ZonAnn.Ts+dSST.csv');
+          const data = await response.text();
+          const years = [];
+          const temps = [];
+          const northern = [];
+          const southern = [];
+
+          // Get rid of the header row with 'slice()'
+          const table = data.trim().split('\n').slice(1);
+          table.forEach((row) => {
+            const cols = row.split(',');
+            years.push(cols[0]);
+            temps.push(parseFloat(cols[1]) + 14);
+            northern.push(parseFloat(cols[2]) + 14);
+            southern.push(parseFloat(cols[3]) + 14);
+          });
+          // console.log(years, temps, northern, southern);
+          return { years, temps, northern, southern };
+        } catch (error) {
+          console.error(error.message);
+        }
+      }
+    </script>
+  </body>
+</html>
